@@ -1,0 +1,355 @@
+openapi: 3.0.3
+info:
+  title: AWS Inventory System API
+  description: |
+    AWS Inventory System for collecting and storing cloud resource information.
+    This API documents the data structures and potential endpoints for the inventory system.
+  version: 1.0.0
+  contact:
+    name: AWS Inventory System
+    
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+components:
+  schemas:
+    S3Bucket:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          description: Bucket name
+        region:
+          type: string
+          description: AWS region
+        creation_date:
+          type: string
+          description: Bucket creation date
+        versioning:
+          type: string
+          enum: [Enabled, Suspended]
+        encryption:
+          type: string
+          description: Encryption algorithm
+        public_access:
+          type: string
+          enum: [Blocked, Allowed, Unknown]
+        last_updated:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+          
+    EC2Instance:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        instance_id:
+          type: string
+          description: EC2 instance ID
+        instance_type:
+          type: string
+          description: Instance type (e.g., t3.micro)
+        state:
+          type: string
+          description: Instance state
+        availability_zone:
+          type: string
+          description: Availability zone
+        public_ip:
+          type: string
+          description: Public IP address
+        private_ip:
+          type: string
+          description: Private IP address
+        launch_time:
+          type: string
+          description: Instance launch time
+        image_id:
+          type: string
+          description: AMI ID
+        vpc_id:
+          type: string
+          description: VPC ID
+        subnet_id:
+          type: string
+          description: Subnet ID
+        security_groups:
+          type: string
+          description: Security groups (JSON array)
+        tags:
+          type: string
+          description: Instance tags (JSON object)
+        last_updated:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+          
+    RDSInstance:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        db_instance_identifier:
+          type: string
+          description: RDS instance identifier
+        db_instance_class:
+          type: string
+          description: Instance class
+        engine:
+          type: string
+          description: Database engine
+        engine_version:
+          type: string
+          description: Engine version
+        db_instance_status:
+          type: string
+          description: Instance status
+        master_username:
+          type: string
+          description: Master username
+        db_name:
+          type: string
+          description: Database name
+        allocated_storage:
+          type: integer
+          description: Allocated storage in GB
+        storage_type:
+          type: string
+          description: Storage type
+        encrypted:
+          type: boolean
+          description: Whether storage is encrypted
+        availability_zone:
+          type: string
+          description: Availability zone
+        multi_az:
+          type: boolean
+          description: Multi-AZ deployment
+        vpc_id:
+          type: string
+          description: VPC ID
+        subnet_group:
+          type: string
+          description: DB subnet group
+        security_groups:
+          type: string
+          description: Security groups (JSON array)
+        backup_retention_period:
+          type: integer
+          description: Backup retention period in days
+        instance_create_time:
+          type: string
+          description: Instance creation time
+        last_updated:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+          
+    LambdaFunction:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        function_name:
+          type: string
+          description: Function name
+        function_arn:
+          type: string
+          description: Function ARN
+        runtime:
+          type: string
+          description: Runtime environment
+        role:
+          type: string
+          description: Execution role ARN
+        handler:
+          type: string
+          description: Function handler
+        code_size:
+          type: integer
+          format: int64
+          description: Code size in bytes
+        description:
+          type: string
+          description: Function description
+        timeout:
+          type: integer
+          description: Timeout in seconds
+        memory_size:
+          type: integer
+          description: Memory size in MB
+        last_modified:
+          type: string
+          description: Last modification time
+        code_sha256:
+          type: string
+          description: Code SHA256 hash
+        version:
+          type: string
+          description: Function version
+        environment:
+          type: string
+          description: Environment variables (JSON object)
+        vpc_config:
+          type: string
+          description: VPC configuration (JSON object)
+        dead_letter_config:
+          type: string
+          description: Dead letter configuration
+        state:
+          type: string
+          description: Function state
+        state_reason:
+          type: string
+          description: State reason
+        last_updated:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+          
+    DynamoDBTable:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        table_name:
+          type: string
+          description: Table name
+        table_arn:
+          type: string
+          description: Table ARN
+        table_status:
+          type: string
+          description: Table status
+        creation_date_time:
+          type: string
+          description: Table creation time
+        provisioned_throughput:
+          type: string
+          description: Provisioned throughput settings
+        billing_mode:
+          type: string
+          description: Billing mode
+        item_count:
+          type: integer
+          format: int64
+          description: Approximate item count
+        table_size_bytes:
+          type: integer
+          format: int64
+          description: Table size in bytes
+        global_secondary_indexes:
+          type: string
+          description: Global secondary indexes (JSON array)
+        local_secondary_indexes:
+          type: string
+          description: Local secondary indexes (JSON array)
+        stream_specification:
+          type: string
+          description: Stream specification (JSON object)
+        sse_description:
+          type: string
+          description: Server-side encryption description
+        point_in_time_recovery:
+          type: string
+          description: Point-in-time recovery status
+        tags:
+          type: string
+          description: Table tags (JSON object)
+        last_updated:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+
+# Potential REST API endpoints (not implemented in CLI version)
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: Service is healthy
+          
+  /api/v1/s3:
+    get:
+      summary: List S3 buckets
+      responses:
+        '200':
+          description: List of S3 buckets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/S3Bucket'
+                  
+  /api/v1/ec2:
+    get:
+      summary: List EC2 instances
+      responses:
+        '200':
+          description: List of EC2 instances
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EC2Instance'
+                  
+  /api/v1/rds:
+    get:
+      summary: List RDS instances
+      responses:
+        '200':
+          description: List of RDS instances
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RDSInstance'
+                  
+  /api/v1/lambda:
+    get:
+      summary: List Lambda functions
+      responses:
+        '200':
+          description: List of Lambda functions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LambdaFunction'
+                  
+  /api/v1/dynamodb:
+    get:
+      summary: List DynamoDB tables
+      responses:
+        '200':
+          description: List of DynamoDB tables
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DynamoDBTable'

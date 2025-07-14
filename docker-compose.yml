@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: aws-inventory-postgres
+    environment:
+      POSTGRES_DB: aws_inventory
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d/
+    networks:
+      - aws-inventory-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d aws_inventory"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  aws-inventory:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aws-inventory-app
+    environment:
+      DATABASE_URL: postgres://postgres:password@postgres:5432/aws_inventory?sslmode=disable
+      AWS_REGION: us-east-1
+      # AWS credentials should be provided via environment variables or mounted AWS credentials
+      # AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      # AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      # AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - aws-inventory-network
+    volumes:
+      # Mount AWS credentials (optional - can also use IAM roles)
+      - ~/.aws:/home/appuser/.aws:ro
+    command: ["-parallel=true"]
+
+  # Migration service (run once to set up database)
+  migrate:
+    image: migrate/migrate:v4.16.2
+    container_name: aws-inventory-migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./migrations:/migrations
+    networks:
+      - aws-inventory-network
+    command: [
+      "-path", "/migrations",
+      "-database", "postgres://postgres:password@postgres:5432/aws_inventory?sslmode=disable",
+      "up"
+    ]
+    profiles:
+      - migration
+
+networks:
+  aws-inventory-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
